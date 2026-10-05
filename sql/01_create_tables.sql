@@ -31,3 +31,33 @@ CREATE TABLE accounts (
     CONSTRAINT chk_account_number
         CHECK (account_number ~ '^[0-9]{8}$')
 );
+
+
+
+CREATE TABLE transfers (
+    id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(50) NOT NULL UNIQUE,
+    source_account_id INTEGER NOT NULL,
+    destination_account_id INTEGER NOT NULL,
+    amount NUMERIC(12, 2) NOT NULL,
+    request_reference VARCHAR(100) NOT NULL UNIQUE,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_transfer_source
+        FOREIGN KEY (source_account_id)
+        REFERENCES accounts(id),
+
+    CONSTRAINT fk_transfer_destination
+        FOREIGN KEY (destination_account_id)
+        REFERENCES accounts(id),
+
+    CONSTRAINT chk_transfer_amount
+        CHECK (amount >= 0.01 AND amount <= 10000),
+
+    CONSTRAINT chk_transfer_status
+        CHECK (status IN ('Pending', 'Successful', 'Failed', 'Cancelled')),
+
+    CONSTRAINT chk_different_accounts
+        CHECK (source_account_id <> destination_account_id)
+);
