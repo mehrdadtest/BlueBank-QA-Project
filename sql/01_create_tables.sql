@@ -61,3 +61,40 @@ CREATE TABLE transfers (
     CONSTRAINT chk_different_accounts
         CHECK (source_account_id <> destination_account_id)
 );
+
+
+
+
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(50) NOT NULL UNIQUE,
+    transfer_id INTEGER NOT NULL,
+    source_account_id INTEGER NOT NULL,
+    destination_account_id INTEGER NOT NULL,
+    amount NUMERIC(12, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_transaction_transfer
+        FOREIGN KEY (transfer_id)
+        REFERENCES transfers(id),
+
+    CONSTRAINT fk_transaction_source
+        FOREIGN KEY (source_account_id)
+        REFERENCES accounts(id),
+
+    CONSTRAINT fk_transaction_destination
+        FOREIGN KEY (destination_account_id)
+        REFERENCES accounts(id),
+
+    CONSTRAINT chk_transaction_status
+        CHECK (status IN ('Successful', 'Failed', 'Cancelled'))
+);
+
+
+
+
+
+
+
+
