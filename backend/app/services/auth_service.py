@@ -3,16 +3,8 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 
 
-def authenticate_user(
-    db: Session,
-    email: str,
-    password: str
-):
-    user = (
-        db.query(User)
-        .filter(User.email == email)
-        .first()
-    )
+def authenticate_user(db: Session, email: str, password: str):
+    user = db.query(User).filter(User.email == email).first()
 
     if not user:
         return None

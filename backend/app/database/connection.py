@@ -3,17 +3,12 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import settings
 
-
 engine = create_engine(
-    settings.database_url,
-    pool_pre_ping=True
+    settings.database_url.replace("postgresql://", "postgresql+psycopg2://"),
+    pool_pre_ping=True,
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
