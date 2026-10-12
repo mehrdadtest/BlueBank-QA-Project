@@ -6,7 +6,7 @@ from app.models.account import Account
 def get_user_accounts(db: Session, user_id: int):
     return (
         db.query(Account)
-        .filter(Account.user_id == user_id, Account.status == "Active")
+        .filter(Account.user_id == user_id)
         .order_by(Account.account_number)
         .all()
     )
