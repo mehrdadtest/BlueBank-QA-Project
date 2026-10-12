@@ -1,15 +1,42 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class TransferRequest(BaseModel):
-    source_account_number: str
-    destination_account_number: str
+    model_config = ConfigDict(str_strip_whitespace=True)
 
-    amount: Decimal = Field(gt=0, le=10000)
+    source_account_number: str = Field(
+        min_length=8,
+        max_length=20,
+        pattern=r"^[0-9]+$",
+    )
 
-    request_reference: str
+    destination_account_number: str = Field(
+        min_length=8,
+        max_length=20,
+        pattern=r"^[0-9]+$",
+    )
+
+    amount: Decimal = Field(
+        gt=0,
+        le=10000,
+        max_digits=12,
+        decimal_places=2,
+    )
+
+    request_reference: str = Field(
+        min_length=3,
+        max_length=100,
+    )
+
+    @field_validator("request_reference")
+    @classmethod
+    def validate_request_reference(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Request reference cannot be empty")
+
+        return value
 
 
 class TransferResponse(BaseModel):
