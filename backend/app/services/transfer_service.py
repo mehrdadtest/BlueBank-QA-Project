@@ -38,6 +38,7 @@ def create_transfer(
         source_account = (
             db.query(Account)
             .filter(Account.account_number == source_account_number)
+            .with_for_update()
             .first()
         )
 

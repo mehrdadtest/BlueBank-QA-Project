@@ -9,6 +9,9 @@ from app.models.account import Account
 from app.models.transfer import Transfer
 from app.models.transaction import Transaction
 from app.services.transfer_service import create_transfer
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from sqlalchemy.orm import sessionmaker
 
 
 def unique_account_number():
@@ -300,4 +303,83 @@ def test_transfer_rolls_back_when_transaction_insert_fails(db_session, monkeypat
         .filter(Transaction.transaction_id == f"TXN-{reference}")
         .count()
         == 0
+    )
+
+
+def test_concurrent_transfers_do_not_overdraw_account(db_session):
+    user, source, destination = seed_accounts(
+        db_session,
+        source_balance=Decimal("100.00"),
+    )
+
+    source_account_number = source.account_number
+    destination_account_number = destination.account_number
+    user_id = user.id
+
+    amount = Decimal("80.00")
+    references = [
+        f"REF-{uuid4().hex}",
+        f"REF-{uuid4().hex}",
+    ]
+
+    session_factory = sessionmaker(
+        bind=db_session.get_bind(),
+        expire_on_commit=False,
+    )
+
+    barrier = Barrier(2)
+
+    def perform_transfer(reference):
+        with session_factory() as session:
+            barrier.wait()
+
+            try:
+                transfer = create_transfer(
+                    session,
+                    user_id,
+                    source_account_number,
+                    destination_account_number,
+                    amount,
+                    reference,
+                )
+                return ("success", transfer.id)
+
+            except ValueError as exc:
+                if str(exc) == "Insufficient balance":
+                    return ("rejected", str(exc))
+                raise
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(perform_transfer, reference) for reference in references
+        ]
+        results = [future.result() for future in futures]
+
+    statuses = [result[0] for result in results]
+
+    assert statuses.count("success") == 1
+    assert statuses.count("rejected") == 1
+
+    db_session.refresh(source)
+    db_session.refresh(destination)
+
+    assert source.balance == Decimal("20.00")
+    assert destination.balance == Decimal("130.00")
+
+    successful_transfer_ids = [
+        result[1] for result in results if result[0] == "success"
+    ]
+
+    assert (
+        db_session.query(Transfer)
+        .filter(Transfer.id.in_(successful_transfer_ids))
+        .count()
+        == 1
+    )
+
+    assert (
+        db_session.query(Transaction)
+        .filter(Transaction.transfer_id.in_(successful_transfer_ids))
+        .count()
+        == 1
     )

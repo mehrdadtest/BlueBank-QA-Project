@@ -927,3 +927,103 @@ def test_transfer_api_rejects_inactive_user(db_session):
         .count()
         == 0
     )
+
+
+def test_transfer_api_rejects_tampered_token():
+    token = jwt.encode(
+        {
+            "sub": "1",
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+        },
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
+    )
+
+    token_parts = token.split(".")
+    signature = token_parts[2]
+
+    token_parts[2] = ("B" if signature[0] == "A" else "A") + signature[1:]
+
+    tampered_token = ".".join(token_parts)
+
+    response = client.post(
+        "/api/v1/transfers",
+        headers={"Authorization": f"Bearer {tampered_token}"},
+        json={
+            "source_account_number": "12345678",
+            "destination_account_number": "87654321",
+            "amount": "10.00",
+            "request_reference": "TAMPERED-TOKEN-001",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid authentication token"
+
+
+def test_transfer_api_rejects_expired_token():
+    token = jwt.encode(
+        {
+            "sub": "1",
+            "exp": datetime.now(timezone.utc) - timedelta(minutes=5),
+        },
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
+    )
+
+    response = client.post(
+        "/api/v1/transfers",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "source_account_number": "12345678",
+            "destination_account_number": "87654321",
+            "amount": "10.00",
+            "request_reference": "EXPIRED-TOKEN-001",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid authentication token"
+
+
+def test_transfer_api_rejects_token_for_nonexistent_user(db_session):
+    nonexistent_user_id = 999999999
+
+    token = jwt.encode(
+        {
+            "sub": str(nonexistent_user_id),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+        },
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
+    )
+
+    response = client.post(
+        "/api/v1/transfers",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "source_account_number": "12345678",
+            "destination_account_number": "87654321",
+            "amount": "10.00",
+            "request_reference": f"NOUSER-{uuid4().hex[:12]}",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "User not found"
+
+
+def test_accounts_list_rejects_request_without_token():
+    response = client.get("/api/v1/accounts")
+
+    assert response.status_code in (401, 403)
+
+
+def test_accounts_list_rejects_invalid_token():
+    response = client.get(
+        "/api/v1/accounts",
+        headers={"Authorization": "Bearer invalid-token"},
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid authentication token"
