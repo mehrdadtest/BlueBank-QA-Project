@@ -19,6 +19,13 @@ if "YOUR_PASSWORD" in TEST_DATABASE_URL:
         "Set TEST_DATABASE_URL with your PostgreSQL test database credentials."
     )
 
+from sqlalchemy.engine import make_url
+
+test_database_url = make_url(TEST_DATABASE_URL)
+
+if test_database_url.database != "bluebank_test":
+    raise RuntimeError("Tests must run only against the bluebank_test database.")
+
 test_engine = create_engine(
     TEST_DATABASE_URL,
     pool_pre_ping=True,

@@ -90,7 +90,7 @@ def test_transfer_rejects_insufficient_balance(db_session):
 def test_transfer_rejects_inactive_source_account(db_session):
     user, source, destination = seed_accounts(
         db_session,
-        source_status="Inactive",
+        source_status="Closed",
     )
 
     with pytest.raises(ValueError, match="Source account is not active"):
@@ -107,7 +107,7 @@ def test_transfer_rejects_inactive_source_account(db_session):
 def test_transfer_rejects_inactive_destination_account(db_session):
     user, source, destination = seed_accounts(
         db_session,
-        destination_status="Inactive",
+        destination_status="Closed",
     )
 
     with pytest.raises(

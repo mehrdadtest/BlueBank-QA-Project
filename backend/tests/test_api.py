@@ -623,7 +623,7 @@ def test_transfer_api_rejects_inactive_source_account(db_session):
     source = Account(
         account_number=str(10_000_000 + uuid4().int % 90_000_000),
         user_id=user.id,
-        status="Inactive",
+        status="Closed",
         balance=Decimal("100.00"),
     )
     destination = Account(
@@ -696,7 +696,7 @@ def test_transfer_api_rejects_inactive_destination_account(db_session):
     destination = Account(
         account_number=str(10_000_000 + uuid4().int % 90_000_000),
         user_id=user.id,
-        status="Inactive",
+        status="Closed",
         balance=Decimal("50.00"),
     )
     db_session.add_all([source, destination])
@@ -865,7 +865,7 @@ def test_transfer_api_rejects_inactive_user(db_session):
     user = User(
         email=f"{uuid4().hex}@test.local",
         password="test-password",
-        status="Inactive",
+        status="Closed",
     )
     db_session.add(user)
     db_session.flush()

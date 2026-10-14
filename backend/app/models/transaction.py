@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    Integer,
+    String,
+    Numeric,
+    DateTime,
+    ForeignKey,
+)
 from sqlalchemy.sql import func
 
 from app.database.connection import Base
@@ -6,6 +14,13 @@ from app.database.connection import Base
 
 class Transaction(Base):
     __tablename__ = "transactions"
+
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('Successful', 'Failed', 'Cancelled')",
+            name="chk_transaction_status",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 
