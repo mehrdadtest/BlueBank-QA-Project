@@ -1027,3 +1027,203 @@ def test_accounts_list_rejects_invalid_token():
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid authentication token"
+
+
+def test_transactions_list_includes_transaction_for_source_owner(db_session):
+    source_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    destination_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    db_session.add_all([source_owner, destination_owner])
+    db_session.flush()
+
+    source = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=source_owner.id,
+        status="Active",
+        balance=Decimal("100.00"),
+    )
+    destination = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=destination_owner.id,
+        status="Active",
+        balance=Decimal("50.00"),
+    )
+    db_session.add_all([source, destination])
+    db_session.flush()
+
+    transaction_id = f"TXN-{uuid4().hex}"
+
+    transfer = Transfer(
+        transaction_id=transaction_id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        request_reference=f"REF-{uuid4().hex}",
+        status="Successful",
+    )
+    db_session.add(transfer)
+    db_session.flush()
+
+    transaction = Transaction(
+        transaction_id=transaction_id,
+        transfer_id=transfer.id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        status="Successful",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+
+    app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(
+        id=source_owner.id
+    )
+    try:
+        response = client.get("/api/v1/transactions")
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+    assert response.status_code == 200
+    assert transaction_id in [item["transaction_id"] for item in response.json()]
+
+
+def test_transactions_list_includes_transaction_for_destination_owner(db_session):
+    source_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    destination_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    db_session.add_all([source_owner, destination_owner])
+    db_session.flush()
+
+    source = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=source_owner.id,
+        status="Active",
+        balance=Decimal("100.00"),
+    )
+    destination = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=destination_owner.id,
+        status="Active",
+        balance=Decimal("50.00"),
+    )
+    db_session.add_all([source, destination])
+    db_session.flush()
+
+    transaction_id = f"TXN-{uuid4().hex}"
+
+    transfer = Transfer(
+        transaction_id=transaction_id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        request_reference=f"REF-{uuid4().hex}",
+        status="Successful",
+    )
+    db_session.add(transfer)
+    db_session.flush()
+
+    transaction = Transaction(
+        transaction_id=transaction_id,
+        transfer_id=transfer.id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        status="Successful",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+
+    app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(
+        id=destination_owner.id
+    )
+    try:
+        response = client.get("/api/v1/transactions")
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+    assert response.status_code == 200
+    assert transaction_id in [item["transaction_id"] for item in response.json()]
+
+
+def test_transactions_list_excludes_transaction_for_unrelated_user(db_session):
+    source_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    destination_owner = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    unrelated_user = User(
+        email=f"{uuid4().hex}@test.local",
+        password="test-password",
+        status="Active",
+    )
+    db_session.add_all([source_owner, destination_owner, unrelated_user])
+    db_session.flush()
+
+    source = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=source_owner.id,
+        status="Active",
+        balance=Decimal("100.00"),
+    )
+    destination = Account(
+        account_number=str(10_000_000 + uuid4().int % 90_000_000),
+        user_id=destination_owner.id,
+        status="Active",
+        balance=Decimal("50.00"),
+    )
+    db_session.add_all([source, destination])
+    db_session.flush()
+
+    transaction_id = f"TXN-{uuid4().hex}"
+
+    transfer = Transfer(
+        transaction_id=transaction_id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        request_reference=f"REF-{uuid4().hex}",
+        status="Successful",
+    )
+    db_session.add(transfer)
+    db_session.flush()
+
+    transaction = Transaction(
+        transaction_id=transaction_id,
+        transfer_id=transfer.id,
+        source_account_id=source.id,
+        destination_account_id=destination.id,
+        amount=Decimal("10.00"),
+        status="Successful",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+
+    app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(
+        id=unrelated_user.id
+    )
+    try:
+        response = client.get("/api/v1/transactions")
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+    assert response.status_code == 200
+    assert transaction_id not in [item["transaction_id"] for item in response.json()]
