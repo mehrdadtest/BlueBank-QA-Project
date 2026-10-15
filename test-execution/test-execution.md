@@ -2,256 +2,286 @@
 
 ## 1. Purpose
 
-This document records the execution results of the BlueBank test cases.
+This document records test execution results for the BlueBank QA project.
 
-The Test Execution phase validates the behavior of the system against the expected results defined in the Test Cases.
+It distinguishes between:
 
-At this stage, the BlueBank application has not yet been implemented or connected to an executable test environment. Therefore, no Pass or Fail result is assigned without actual execution evidence.
+- Automated backend/API test execution.
+- Formal manual test-case execution.
+- Retesting of reported defects.
+- Regression testing after code changes.
 
----
+Every execution result must be supported by actual evidence. Test results must not be inferred from requirements, expected results, or the existence of test code alone.
 
-## 2. Execution Status
+## 2. Execution Status Definitions
 
-The following statuses are used during Test Execution:
+| Status | Description |
+|---|---|
+| Not Executed | The test has not been executed in the relevant execution cycle. |
+| Pass | The observed behavior matches the expected result. |
+| Fail | The observed behavior differs from the expected result. |
+| Blocked | Execution cannot proceed because of an unresolved environment, dependency, or prerequisite issue. |
+| Not Applicable | The test does not apply to the agreed execution scope, with a documented reason. |
 
-| Status         | Description                                                                          |
-| -------------- | ------------------------------------------------------------------------------------ |
-| Not Executed   | Test case has not yet been executed                                                  |
-| Pass           | Actual result matches the expected result                                            |
-| Fail           | Actual result does not match the expected result                                     |
-| Blocked        | Test cannot be executed because of an environment, dependency, or prerequisite issue |
-| Not Applicable | Test is not applicable to the current execution scope                                |
+A failed test is not automatically a confirmed product defect. Investigate the failure to determine whether it is caused by the application, test code, test data, configuration, or environment.
 
----
+## 3. Current Execution Overview
 
-## 3. Execution Information
+### 3.1 Automated Backend/API Tests
 
-| Field            | Value                      |
-| ---------------- | -------------------------- |
-| Project          | BlueBank QA Project        |
-| Test Suite       | BlueBank Manual Test Suite |
-| Test Cases       | 61                         |
-| Execution Status | Not Started                |
-| Environment      | Not Available              |
-| Build Version    | Not Available              |
-| Tester           | TBD                        |
-| Execution Date   | TBD                        |
+The latest reported pytest execution completed with **56 passed**.
 
----
+| Metric | Latest Reported Result |
+|---|---:|
+| Passed pytest test items | 56 |
+| Failed pytest test items | 0 |
+| Execution status | Passed |
+| Test framework | pytest |
+| Execution command | `python -m pytest .\tests -v` |
 
-## 4. Test Execution Records
+Run the command from the `backend` directory.
 
-| Test Case | Scenario                                 | Priority | Status       | Actual Result | Bug ID | Notes |
-| --------- | ---------------------------------------- | -------- | ------------ | ------------- | ------ | ----- |
-| TC-001    | Valid Login                              | High     | Not Executed | -             | -      | -     |
-| TC-002    | Login with Wrong Password                | High     | Not Executed | -             | -      | -     |
-| TC-003    | Login with Unregistered Email            | High     | Not Executed | -             | -      | -     |
-| TC-004    | Login with Blank Email                   | Medium   | Not Executed | -             | -      | -     |
-| TC-005    | Login with Blank Password                | Medium   | Not Executed | -             | -      | -     |
-| TC-006    | Access Transfer Without Login            | High     | Not Executed | -             | -      | -     |
-| TC-007    | Access Transfer with Expired Session     | High     | Not Executed | -             | -      | -     |
-| TC-008    | Preserve Valid Session into Transfer     | Medium   | Not Executed | -             | -      | -     |
-| TC-009    | Display Active User Accounts             | High     | Not Executed | -             | -      | -     |
-| TC-010    | Exclude Inactive/Closed/Blocked Accounts | High     | Not Executed | -             | -      | -     |
-| TC-011    | Exclude Another User's Account           | High     | Not Executed | -             | -      | -     |
-| TC-012    | Select Valid Source Account              | High     | Not Executed | -             | -      | -     |
-| TC-013    | User with No Active Account              | Medium   | Not Executed | -             | -      | -     |
-| TC-014    | Unauthorized Source Account              | High     | Not Executed | -             | -      | -     |
-| TC-015    | Valid Destination Account                | High     | Not Executed | -             | -      | -     |
-| TC-016    | Nonexistent Destination                  | High     | Not Executed | -             | -      | -     |
-| TC-017    | Closed Destination                       | High     | Not Executed | -             | -      | -     |
-| TC-018    | Blocked Destination                      | High     | Not Executed | -             | -      | -     |
-| TC-019    | Same Source and Destination              | High     | Not Executed | -             | -      | -     |
-| TC-020    | Empty Destination                        | Medium   | Not Executed | -             | -      | -     |
-| TC-021    | Invalid Destination Format               | High     | Not Executed | -             | -      | -     |
-| TC-022    | Amount Below Minimum                     | High     | Not Executed | -             | -      | -     |
-| TC-023    | Minimum Amount                           | High     | Not Executed | -             | -      | -     |
-| TC-024    | Amount Just Above Minimum                | Medium   | Not Executed | -             | -      | -     |
-| TC-025    | Normal Valid Amount                      | High     | Not Executed | -             | -      | -     |
-| TC-026    | Valid Decimal Amount                     | Medium   | Not Executed | -             | -      | -     |
-| TC-027    | Amount with Two Decimal Places           | Medium   | Not Executed | -             | -      | -     |
-| TC-028    | Amount Near Maximum                      | High     | Not Executed | -             | -      | -     |
-| TC-029    | Maximum Amount                           | High     | Not Executed | -             | -      | -     |
-| TC-030    | Amount Above Maximum                     | High     | Not Executed | -             | -      | -     |
-| TC-031    | Negative Amount                          | High     | Not Executed | -             | -      | -     |
-| TC-032    | Blank Amount                             | Medium   | Not Executed | -             | -      | -     |
-| TC-033    | Non-Numeric Amount                       | High     | Not Executed | -             | -      | -     |
-| TC-034    | Illegal Characters in Amount             | Medium   | Not Executed | -             | -      | -     |
-| TC-035    | More Than Two Decimal Places             | High     | Not Executed | -             | -      | -     |
-| TC-036    | Transfer Below Available Balance         | High     | Not Executed | -             | -      | -     |
-| TC-037    | Transfer Equal to Available Balance      | High     | Not Executed | -             | -      | -     |
-| TC-038    | Transfer Above Available Balance         | High     | Not Executed | -             | -      | -     |
-| TC-039    | Zero Balance                             | High     | Not Executed | -             | -      | -     |
-| TC-040    | Balance Below Minimum Transfer           | Medium   | Not Executed | -             | -      | -     |
-| TC-041    | Verify Confirmation Data                 | High     | Not Executed | -             | -      | -     |
-| TC-042    | Confirm Valid Transfer                   | Critical | Not Executed | -             | -      | -     |
-| TC-043    | Cancel Before Confirmation               | High     | Not Executed | -             | -      | -     |
-| TC-044    | Navigate Back Before Confirmation        | Medium   | Not Executed | -             | -      | -     |
-| TC-045    | Change Amount Before Confirmation        | High     | Not Executed | -             | -      | -     |
-| TC-046    | Successful Transfer                      | Critical | Not Executed | -             | -      | -     |
-| TC-047    | Unique Transaction ID                    | High     | Not Executed | -             | -      | -     |
-| TC-048    | Source Balance Update                    | Critical | Not Executed | -             | -      | -     |
-| TC-049    | Destination Balance Update               | Critical | Not Executed | -             | -      | -     |
-| TC-050    | Transfer Appears in History              | High     | Not Executed | -             | -      | -     |
-| TC-051    | Transaction History Accuracy             | High     | Not Executed | -             | -      | -     |
-| TC-052    | Transfer Status                          | High     | Not Executed | -             | -      | -     |
-| TC-053    | Double-Click Confirm                     | Critical | Not Executed | -             | -      | -     |
-| TC-054    | Resend Same Transfer Request             | Critical | Not Executed | -             | -      | -     |
-| TC-055    | Retry After Timeout                      | Critical | Not Executed | -             | -      | -     |
-| TC-056    | Duplicate History Prevention             | Critical | Not Executed | -             | -      | -     |
-| TC-057    | Successful End-to-End Transfer           | Critical | Not Executed | -             | -      | -     |
-| TC-058    | Insufficient Balance End-to-End          | Critical | Not Executed | -             | -      | -     |
-| TC-059    | Invalid Destination End-to-End           | Critical | Not Executed | -             | -      | -     |
-| TC-060    | Full Available Balance End-to-End        | Critical | Not Executed | -             | -      | -     |
-| TC-061    | Duplicate Transfer Prevention End-to-End | Critical | Not Executed | -             | -      | -     |
+The result above is based on the latest reported execution. The execution date, commit, environment, and complete test output must be recorded to establish a reproducible execution record.
 
----
+The 56 passing test items are not equivalent to 56 unique business scenarios or 56 formal manual test cases.
 
-## 5. Execution Rules
+### 3.2 Manual Test Cases
 
-During actual execution, the following rules will be followed:
+The project contains historical documentation describing 61 test scenarios and 61 test cases. These records originated from an earlier, UI-oriented test-design scope.
 
-### 5.1 Pass
+They must be reviewed and reconciled with the current backend implementation before being treated as the current manual execution baseline.
 
-A test case is marked **Pass** when the actual behavior matches the expected result defined in the corresponding Test Case.
+| Metric | Status |
+|---|---|
+| Current approved manual test-case baseline | Requires reconciliation |
+| Manually executed cases | Not established |
+| Manual pass/fail counts | Not established |
+| Manual blocked cases | Not established |
+| Manual execution evidence | Not established in this summary |
 
-### 5.2 Fail
+Do not use the automated test result to populate the manual execution counts.
 
-A test case is marked **Fail** when the actual behavior differs from the expected result.
+## 4. Execution Record Information
 
-A failed test should normally result in a Bug Report unless the failure is caused by an invalid test environment or test data issue.
+Each execution cycle should have its own record.
 
-### 5.3 Blocked
+| Field | Value |
+|---|---|
+| Project | BlueBank QA Project |
+| Execution Cycle ID | TBD |
+| Test Type | Automated Backend/API |
+| Test Framework | pytest |
+| Application Commit | TBD |
+| Environment | TBD |
+| Test Database | Dedicated test database |
+| Execution Command | `python -m pytest .\tests -v` |
+| Execution Date and Time | TBD |
+| Tester or Executor | TBD |
+| Evidence Location | TBD |
 
-A test case is marked **Blocked** when execution cannot continue because of an external dependency.
+Fill in the fields from the actual execution environment. Do not invent a build version, commit hash, execution timestamp, or environment identifier.
 
-Examples:
+## 5. Automated Test Execution Records
 
-* Application is unavailable.
-* Required test account does not exist.
-* Database is unavailable.
-* Required API is unavailable.
-* Test environment is not configured.
+For automated tests, preserve the actual test output and use the test function names from the current test suite.
 
-### 5.4 Not Executed
+Example record format:
 
-A test case remains **Not Executed** when execution has not started.
+| Test Function / Item | Test Area | Result | Evidence | Defect ID | Notes |
+|---|---|---|---|---|---|
+| `test_transfer_rejects_insufficient_balance` | Transfer validation | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_transfer_rejects_inactive_source_account` | Source account validation | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_transfer_rejects_inactive_destination_account` | Destination validation | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_transfer_rejects_source_account_owned_by_another_user` | Authorization | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_transfer_rejects_duplicate_request_reference` | Duplicate request handling | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_successful_transfer_updates_balances_and_records_history` | Transfer processing | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_transfer_rolls_back_when_transaction_insert_fails` | Rollback | Record from actual run | TBD | TBD | Verify against execution output |
+| `test_concurrent_transfers_do_not_overdraw_account` | Concurrency | Record from actual run | TBD | TBD | Verify against execution output |
 
----
+These are examples of known test functions, not a complete list of all tests. Populate results from the actual pytest output. Do not mark individual functions as passed merely because the overall suite previously reported 56 passed.
 
-## 6. Actual Result Recording
+For a detailed record, retain the test function, run identifier, outcome, failure output where applicable, and link to the corresponding requirement or test case.
 
-When a test is executed, the `Actual Result` column must contain the observed system behavior rather than a copy of the Expected Result.
+## 6. Manual Test Execution Records
+
+Use the following format for approved manual test cases:
+
+| Field | Description |
+|---|---|
+| Test Case ID | Stable identifier for the formal test case |
+| Requirement / AC ID | Related requirement or acceptance criterion |
+| Test Scenario ID | Related scenario |
+| Test Type | Manual API, database verification, or another applicable type |
+| Priority | Agreed test priority |
+| Environment | Environment used for execution |
+| Preconditions | Conditions established before the test |
+| Test Data | Data used during execution |
+| Actual Result | Observed system behavior |
+| Status | Pass, Fail, Blocked, or Not Applicable |
+| Defect ID | Related defect, if one is confirmed |
+| Evidence | Request/response, query output, logs, or other relevant evidence |
+| Execution Date | Date and time of execution |
+| Tester | Person who executed the test |
+
+Manual execution should begin only after the test case has been reviewed and the required environment and test data are available.
+
+UI-specific cases such as clicking a confirmation button, navigating backward in a transfer form, or verifying a confirmation screen must not be executed against the backend-only implementation as if those UI components existed.
+
+Where the intended behavior can be tested at the API level, create or revise an API-level test case with an appropriate request and expected response.
+
+## 7. Execution Rules
+
+### 7.1 Pass
+
+Mark a test as Pass when the actual result satisfies the expected result and the required evidence has been recorded.
+
+### 7.2 Fail
+
+Mark a test as Fail when the actual result does not satisfy the expected result.
+
+Record the observed behavior, relevant request and response or logs, and the steps needed to reproduce the issue.
+
+Create a defect report when investigation confirms a product defect.
+
+### 7.3 Blocked
+
+Mark a test as Blocked when a prerequisite prevents execution.
+
+Examples include:
+
+- The application or required API is unavailable.
+- The required test database cannot be accessed.
+- Required test data cannot be prepared.
+- A required dependency is unavailable.
+- An unresolved environment issue prevents a valid result.
+
+Record the blocking reason and the action required to unblock the test.
+
+### 7.4 Not Executed
+
+Keep a test as Not Executed when no execution has taken place in the current cycle.
+
+### 7.5 Not Applicable
+
+Use Not Applicable only when the test is outside the agreed execution scope. Record the reason and obtain the appropriate review or approval.
+
+## 8. Actual Results and Evidence
+
+The Actual Result field must describe the observed behavior, not repeat the Expected Result.
 
 For example:
 
-**Expected Result:**
+**Expected Result:** The API rejects a transfer request with an invalid amount.
 
-> The transfer is rejected and an appropriate validation message is displayed.
+**Actual Result:** The API returned HTTP 422 and a validation response for the submitted request.
 
-**Actual Result:**
+**Status:** Pass, provided that this response matches the approved expected result.
 
-> Transfer was rejected, but no validation message was displayed.
+Useful evidence may include:
 
-This test would be marked:
+- pytest output and failure tracebacks.
+- API requests and responses.
+- Database query results.
+- Application logs.
+- Transfer or transaction identifiers.
+- Relevant timestamps.
+- Screenshots or recordings when a UI exists and they are relevant.
 
-**Fail**
+Do not include passwords, access tokens, database credentials, or other secrets in evidence committed to the repository.
 
-and linked to a Bug Report.
+## 9. Environment and Reproducibility
 
----
+Record the following for each meaningful execution cycle:
 
-## 7. Defect Linkage
+| Field | Value |
+|---|---|
+| Operating System | TBD |
+| Python Version | TBD |
+| Application Commit | TBD |
+| Dependency Versions | `backend/requirements.txt` or captured environment |
+| Database Engine and Version | TBD |
+| Test Database | Dedicated test database |
+| Test Command | `python -m pytest .\tests -v` |
+| Execution Date and Time | TBD |
+| Execution Output | TBD |
 
-When a test case fails, its `Bug ID` column should reference the corresponding defect.
+Before running the test suite, verify that the configured database is the dedicated test database and that the project's database safety checks are active.
 
-Example:
+## 10. Defect Linkage, Retest, and Regression
 
-| Test Case | Status | Bug ID  |
-| --------- | ------ | ------- |
-| TC-030    | Fail   | BUG-001 |
-
-The relationship is therefore:
+The defect workflow is:
 
 ```text
-Test Case
-    ↓
-Execution
-    ↓
+Test Execution
+      ↓
 Fail
-    ↓
-Bug Report
-    ↓
+      ↓
+Failure Investigation
+      ↓
+Confirmed Defect (if applicable)
+      ↓
 Fix
-    ↓
+      ↓
 Retest
-    ↓
-Regression
+      ↓
+Regression Testing
+      ↓
+Recorded Final Result
 ```
 
----
+A defect should reference the test case and execution that exposed it. Retesting should verify the specific fix, while regression testing should check related behavior that may have been affected by the change.
 
-## 8. Execution Evidence
+Do not create fictional defect records solely to populate the portfolio. If no defect has been confirmed, state that no confirmed defects have been recorded for the relevant cycle.
 
-For executable environments, evidence may include:
+## 11. Execution Metrics
 
-* Screenshots
-* Screen recordings
-* API request/response
-* Database query results
-* Application logs
-* Transaction IDs
-* Browser console information
-* Relevant timestamps
+Calculate metrics separately for each execution cycle and test type.
 
-Evidence should be attached or referenced when it helps reproduce or verify the result.
+**Execution Progress**
 
----
+`Executed Cases / Total Planned Cases × 100`
 
-## 9. Environment Information
+**Pass Rate**
 
-The following information should be recorded for every meaningful execution cycle:
+`Passed Cases / Executed Cases × 100`
 
-| Field               | Example |
-| ------------------- | ------- |
-| Environment         | QA      |
-| Application Version | v1.0.0  |
-| Browser             | Chrome  |
-| Browser Version     | TBD     |
-| Operating System    | Windows |
-| API Version         | TBD     |
-| Database            | TBD     |
-| Execution Date      | TBD     |
-| Tester              | TBD     |
+**Fail Rate**
 
----
+`Failed Cases / Executed Cases × 100`
 
-## 10. Current State
+**Blocked Rate**
 
-The current project is still in the **Test Design phase**.
+`Blocked Cases / Executed Cases × 100`
 
-No test case has been executed against an actual BlueBank application.
+For these metrics, define the denominator consistently and count each planned test case once per cycle. Do not mix automated pytest items with formal manual test cases.
 
-Therefore:
+If no cases have been executed, pass, fail, and blocked rates should be reported as not applicable rather than as 0%.
 
-* Passed: 0
-* Failed: 0
-* Blocked: 0
-* Not Executed: 61
+## 12. Exit Criteria
 
-No defect has been created based on execution yet.
+An execution cycle can be closed when its agreed exit criteria have been met, including:
 
----
+- All planned cases have a recorded outcome or an approved exclusion.
+- Required critical tests have been executed.
+- Failed tests have been investigated.
+- Confirmed defects have been documented.
+- Required retesting and regression testing have been completed.
+- Unresolved issues and risks have been recorded.
+- Execution evidence and the final summary have been reviewed.
 
-## 11. Next Step
+Passing all executed tests does not by itself prove complete requirements coverage or production readiness.
 
-Once an executable BlueBank environment is available, the 61 test cases will be executed.
+## 13. Current Conclusion
 
-The execution process will produce:
+The latest reported automated backend/API test run completed with **56 passed pytest test items**.
 
-1. Actual Results
-2. Pass/Fail/Blocked status
-3. Defect reports for failed tests
-4. Retest candidates
-5. Regression candidates
-6. Execution summary
+The historical set of 61 UI-oriented test scenarios and test cases has not yet been reconciled with the current backend scope. Therefore, it must not be used as the denominator for current manual execution metrics.
+
+The next steps are to:
+
+1. Reconcile the historical test cases with the implemented API behavior.
+2. Confirm the current formal manual test-case baseline.
+3. Record the commit, execution date, environment, and full pytest output for subsequent runs.
+4. Map automated test functions to the relevant requirements and test cases.
+5. Execute suitable manual API and database checks where they add value.
+6. Record confirmed defects, retests, and regression results when applicable.

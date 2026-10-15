@@ -1,160 +1,160 @@
-# BlueBank QA Project --- Test Analysis
+# Test Analysis
 
-## 1. Requirement Decomposition
+## 1. Purpose
 
-Test analysis in this project follows the chain:
+This document describes the test analysis for the current BlueBank backend implementation. The analysis is based on the implemented FastAPI endpoints, request validation, service-layer business rules, database operations, and automated tests.
 
-**Requirement / Business Rule → Acceptance Criteria → Test Condition →
-Test Scenario → Test Case**
+The scope is limited to the existing backend. UI behavior, browser sessions, confirmation dialogs, and other unimplemented frontend functionality are outside the current test scope.
 
-### Requirement / Business Rule
+## 2. Test Scope
 
-What must be true about the product?
+The current automated test coverage includes:
 
-### Acceptance Criteria
+- Health endpoint availability.
+- JWT authentication and authorization.
+- Account listing and account ownership.
+- Transfer request validation.
+- Transfer business rules.
+- Balance updates after a successful transfer.
+- Transfer and transaction record creation.
+- Duplicate request-reference rejection.
+- Transaction history visibility for relevant account owners.
+- Database rollback and concurrent transfer behavior at the service layer.
 
-What conditions determine whether the requirement is accepted?
+## 3. Requirements and Business Rules
 
-### Test Condition
+| ID | Requirement / Business Rule | Expected Behavior |
+|---|---|---|
+| BR-01 | Health Check | `GET /health` returns HTTP 200 and `{"status": "healthy"}`. |
+| BR-02 | Authentication Required | Protected endpoints reject requests without a valid authentication token. |
+| BR-03 | JWT Validation | Invalid, tampered, or expired tokens are rejected. |
+| BR-04 | User Validation | A token associated with a nonexistent or inactive user is rejected. |
+| BR-05 | Account List Authorization | A user can retrieve only their own accounts. |
+| BR-06 | Individual Account Authorization | A user cannot retrieve another user's account; the API returns HTTP 404. |
+| BR-07 | Positive Transfer Amount | Transfer requests with zero or negative amounts are rejected during request validation. |
+| BR-08 | Transfer Amount Limit | An amount above the implemented maximum of 10,000 is rejected during request validation. |
+| BR-09 | Amount Precision | Transfer amounts with more than two decimal places are rejected. |
+| BR-10 | Valid Account Number Format | Account numbers that do not satisfy the request schema are rejected. |
+| BR-11 | Required Request Reference | An empty `request_reference` is rejected. |
+| BR-12 | Different Accounts | Source and destination accounts must be different. |
+| BR-13 | Source Account Existence | The source account must exist. |
+| BR-14 | Destination Account Existence | The destination account must exist. |
+| BR-15 | Source Account Ownership | The authenticated user must own the source account. |
+| BR-16 | Active Accounts | Both source and destination accounts must be active. |
+| BR-17 | Sufficient Balance | The source account must have sufficient funds for the transfer. |
+| BR-18 | Duplicate Request Prevention | A previously used `request_reference` is rejected. |
+| BR-19 | Successful Transfer | A valid transfer updates the source and destination balances. |
+| BR-20 | Transfer Records | A successful transfer creates a `Transfer` record and a corresponding `Transaction` record. |
+| BR-21 | Transaction History Authorization | Transaction history includes transactions relevant to the user's accounts and excludes unrelated transactions. |
+| BR-22 | Failure Atomicity | A failed transfer must not leave partial balance changes or incomplete transfer records. |
+| BR-23 | Concurrent Balance Protection | Concurrent transfers must not allow the source account to be overdrawn. |
 
-What feature, rule, or situation needs to be tested?
+## 4. Test Conditions
 
-### Test Scenario
+### 4.1 Health Check
 
-What meaningful situation or flow should be tested?
+- Verify the health endpoint returns HTTP 200.
+- Verify the response body matches the expected status object.
 
-### Test Case
+### 4.2 Authentication and Authorization
 
-Exactly how will the tester execute the test, using defined
-Preconditions, Steps, Test Data, and Expected Results?
+- Submit a protected request without a token.
+- Submit a request with an invalid token.
+- Submit a request with a tampered JWT signature.
+- Submit a request with an expired token.
+- Submit a request using a token for a nonexistent user.
+- Submit a request using a token for an inactive user.
 
-## 2. Test Conditions
+### 4.3 Account Access
 
-### Authentication & Access
+- Retrieve the authenticated user's account list.
+- Verify that another user's accounts are excluded.
+- Retrieve an account owned by the authenticated user.
+- Attempt to retrieve an account owned by another user.
+- Attempt to list accounts without a token or with an invalid token.
 
--   TCND-001 Valid Login
--   TCND-002 Wrong Password
--   TCND-003 Unregistered Email
--   TCND-004 Empty Email
--   TCND-005 Empty Password
--   TCND-006 Transfer Access Without Authentication
--   TCND-007 Transfer Access With Expired Session
--   TCND-008 Valid Session Into Transfer
+### 4.4 Transfer Request Validation
 
-### Source Account
+- Submit zero and negative amounts.
+- Submit an amount above the maximum.
+- Submit an amount with more than two decimal places.
+- Submit an invalid account number.
+- Submit an empty request reference.
+- Submit the same source and destination account number.
 
--   TCND-009 Active User Accounts
--   TCND-010 Inactive/Closed/Blocked Accounts
--   TCND-011 Other User Account
--   TCND-012 Valid Source Selection
--   TCND-013 No Active Account
--   TCND-014 Unauthorized Source Account
+### 4.5 Transfer Business Rules
 
-### Destination Account
+- Transfer funds from a valid active source account to a valid active destination account.
+- Attempt a transfer from another user's source account.
+- Attempt a transfer from a nonexistent source account.
+- Attempt a transfer to a nonexistent destination account.
+- Attempt a transfer from an inactive source account.
+- Attempt a transfer to an inactive destination account.
+- Attempt a transfer with insufficient funds.
+- Submit a duplicate request reference.
 
--   TCND-015 Valid Destination
--   TCND-016 Nonexistent Destination
--   TCND-017 Closed Destination
--   TCND-018 Blocked Destination
--   TCND-019 Same Source and Destination
--   TCND-020 Empty Destination
--   TCND-021 Invalid Destination Format
+### 4.6 Transfer Results and Persistence
 
-### Transfer Amount
+- Verify the HTTP response for a successful transfer.
+- Verify the source balance decreases by the transfer amount.
+- Verify the destination balance increases by the transfer amount.
+- Verify the transfer status is `Successful`.
+- Verify the corresponding `Transfer` and `Transaction` records exist.
+- Verify rejected transfers do not change balances or create records.
+- Verify rollback behavior when a transaction-record insertion fails.
+- Verify concurrent transfers cannot overdraw the source account.
 
--   TCND-022 Below Minimum
--   TCND-023 Minimum
--   TCND-024 Just Above Minimum
--   TCND-025 Normal Valid Amount
--   TCND-026 Valid Decimal
--   TCND-027 Two Decimal Places
--   TCND-028 Near Maximum
--   TCND-029 Maximum
--   TCND-030 Above Maximum
--   TCND-031 Negative
--   TCND-032 Empty
--   TCND-033 Nonnumeric
--   TCND-034 Illegal Characters
--   TCND-035 More Than Two Decimal Places
+### 4.7 Transaction History
 
-### Available Balance
+- Verify the source account owner can see a relevant transaction.
+- Verify the destination account owner can see a relevant transaction.
+- Verify an unrelated user cannot see that transaction.
 
--   TCND-036 Amount Below Balance
--   TCND-037 Amount Equal to Balance
--   TCND-038 Amount Above Balance
--   TCND-039 Zero Balance
--   TCND-040 Balance Below Minimum
+## 5. Test Design Techniques
 
-### Confirmation
+### Equivalence Partitioning (EP)
 
--   TCND-041 Confirmation Data
--   TCND-042 Confirm Transfer
--   TCND-043 Cancel
--   TCND-044 Navigate Back
--   TCND-045 Change Amount Before Confirmation
+Input partitions currently supported by the test suite include:
 
-### Successful Transfer
+- Valid and invalid transfer amounts.
+- Valid and invalid account-number formats.
+- Nonempty and empty request references.
+- Valid and invalid authentication tokens.
+- Existing and nonexistent accounts.
+- Active and inactive accounts.
+- Authorized and unauthorized source accounts.
 
--   TCND-046 Successful Transfer
--   TCND-047 Unique Transaction ID
--   TCND-048 Source Balance Update
--   TCND-049 Destination Balance Update
--   TCND-050 Transaction History Creation
--   TCND-051 Transaction History Accuracy
--   TCND-052 Transfer Status
+### Boundary Value Analysis (BVA)
 
-### Duplicate Submission
+The existing tests explicitly cover these amount boundaries:
 
--   TCND-053 Double-click Confirm
--   TCND-054 Resend Same Request
--   TCND-055 Retry After Timeout
--   TCND-056 Duplicate History Prevention
+| Input | Expected Result |
+|---|---|
+| `0` | HTTP 422 |
+| Negative amount | HTTP 422 |
+| `10000` | The schema's upper boundary; verify using the dedicated validation tests |
+| `10001` | HTTP 422 |
+| More than two decimal places | HTTP 422 |
 
-## 3. Test Design Techniques
+The exact minimum positive amount and acceptance of every boundary value must be documented only to the extent confirmed by the request schema and its tests.
 
-### Equivalence Partitioning
+### Decision-Based Testing
 
-For the transfer amount:
+Transfer acceptance depends on multiple conditions, including source ownership, account existence, account status, available balance, distinct account numbers, and request-reference uniqueness. The automated suite tests these conditions individually and tests a successful transfer.
 
--   Less than 0.01 → Invalid
--   0.01 through 10,000 → Valid
--   Greater than 10,000 → Invalid
+## 6. Out of Scope
 
-### Boundary Value Analysis
+The following items are not included in the current verified automated coverage described by this document:
 
-Lower boundary:
+- UI navigation and confirmation dialogs.
+- Cancel, Back, and Change Amount button behavior.
+- Browser session expiry.
+- Frontend display and formatting.
+- Retry behavior after network timeouts.
+- Double-click behavior in a user interface.
+- Performance, load, accessibility, and security penetration testing.
+- Postman execution results, unless a separate executed collection report is available.
 
-`0` / `0.01` / `0.02`
+## 7. Analysis Summary
 
-Upper boundary:
-
-`9999.99` / `10000` / `10000.01`
-
-### Decision Table
-
-  ---------------------------------------------------------------------------
-  Authenticated   Source Valid   Destination    Amount Valid   Expected
-                                 Valid                         
-  --------------- -------------- -------------- -------------- --------------
-  No              \-             \-             \-             Reject
-
-  Yes             No             \-             \-             Reject
-
-  Yes             Yes            No             \-             Reject
-
-  Yes             Yes            Yes            No             Reject
-
-  Yes             Yes            Yes            Yes            Continue to
-                                                               Confirmation
-  ---------------------------------------------------------------------------
-
-## 4. Analysis Decisions
-
-The original working list contained two scenarios covering `Amount = 0`.
-This duplicate coverage was removed from the final baseline so that each
-formal test condition has clear and meaningful coverage.
-
-Session expiry, account-number format, and
-retry-after-timeout/idempotency behavior are explicit project
-assumptions. This prevents expected behavior from being based only on
-tester assumptions.
+The current test analysis focuses on backend API behavior, authorization, transfer business rules, persistence, and transaction history. A requirement is not considered tested merely because it appears in this document; its coverage must be traceable to an automated test or other recorded execution evidence.

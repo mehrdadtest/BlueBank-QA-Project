@@ -1,103 +1,85 @@
-# BlueBank QA Project --- Project Context
+# BlueBank QA Project — Project Context
 
-> Master continuation document. This file preserves the current project
-> state so future work does not depend on chat history.
+> Master continuation document. This file records the current project state, confirmed implementation details, documentation decisions, and next steps. Use it as the primary reference when continuing work across conversations.
 
-## Project Goal
+## 1. Project Goal
 
-Build a practical QA portfolio project around the fictional BlueBank
-banking application.
+Build a practical QA portfolio project around the fictional BlueBank banking application.
 
 Primary goals:
 
-1.  Review ISTQB CTFL concepts through practical work.
-2.  Build a GitHub-ready QA portfolio.
-3.  Create material for a Persian software-testing case study.
-4.  Continue later with API Testing, SQL, Playwright, and automation.
+1. Review ISTQB CTFL concepts through practical QA activities.
+2. Build a GitHub-ready Software Testing portfolio.
+3. Develop a Persian software-testing case study based on a realistic banking backend.
+4. Practice Manual Testing, API Testing, SQL, and test automation.
+5. Extend the project progressively toward Playwright, Python-based automation, and CI/CD.
 
-## Current Phase
+## 2. Product Overview
 
-**Phase 1 --- Manual Test Analysis & Design**
+**Product:** BlueBank  
+**Product Type:** Fictional digital banking application  
+**Current Implementation:** FastAPI backend with PostgreSQL database.
 
-Status: Completed.
+The project is educational and intended for QA practice and portfolio development. It is not a production banking system.
 
-The next step is **Test Case Design**.
+## 3. Current Project Status
 
-## Product
+### Completed or Implemented
 
-BlueBank --- fictional digital banking platform.
+- FastAPI backend structure.
+- PostgreSQL database connection.
+- Database tables for users, accounts, transfers, and transactions.
+- Authentication API.
+- Account listing and account-detail APIs.
+- Money transfer API.
+- Transaction history API.
+- Request validation through Pydantic schemas.
+- Business-rule validation for money transfers.
+- Authorization and account-ownership checks.
+- Balance updates and transaction-record creation.
+- Rollback handling for transfer failures.
+- Protection against concurrent transfers causing an overdraft.
+- Automated API and backend tests using pytest.
 
-## Phase 1 Scope
+### Current Automated Test Baseline
 
-### In Scope
+The latest reported pytest execution completed with:
 
--   Login
--   Money Transfer
--   Transfer Confirmation
--   Transfer Status
--   Transaction History
+**56 passed**
 
-### Out of Scope
+Command used from the `backend` directory:
 
--   Registration
--   Password Recovery
--   Admin Panel
--   Card Management
--   Bill Payment
--   Loan Management
--   Notifications
--   Mobile Application
--   Performance Testing
--   Security Penetration Testing
+```bash
+python -m pytest .\tests -v
+```
 
-## Completed Artifacts
+This result represents 56 passing pytest test items in that execution. It does not automatically mean that 56 unique business scenarios or all documented acceptance criteria have been verified.
 
--   `01-project-definition.md`
--   `02-business-rules.md`
--   `03-user-story.md`
--   `04-acceptance-criteria.md`
--   `05-test-analysis.md`
--   `06-test-scenarios.md`
--   `07-traceability-matrix.md`
+The test count is a snapshot of a particular run and must be updated whenever the test suite changes.
 
-## Current Baseline
+### Important Status Distinction
 
--   Business Rules: 19
--   Acceptance Criteria: 18 total
-    -   13 Money Transfer
-    -   5 Authentication
--   Test Conditions: 56
--   Test Scenarios: 61
--   Formal Test Cases: Not created
--   Test Execution: Not started
--   Bug Reports: Not created
--   Retest: Not started
--   Regression: Not started
--   API Testing: Not started
--   SQL: Not started
--   Playwright: Not started
+- **Implemented:** The corresponding functionality exists in the application code.
+- **Automated-tested:** Automated tests have been written for the behavior.
+- **Passed:** The relevant test passed in a recorded execution.
+- **Documented:** The requirement or expected behavior is recorded in project documentation.
+- **Manually executed:** A formal manual test case has been executed and its result recorded.
 
-## Important Decisions
+These statuses must not be treated as interchangeable.
 
-1.  Login has separate acceptance criteria because Login is part of
-    Phase 1 scope.
-2.  Account number format (8 digits) is an explicit project
-    assumption/business rule.
-3.  Session expiry behavior is explicitly defined.
-4.  Retry-after-timeout/idempotency behavior is explicitly defined.
-5.  The duplicate zero-amount scenario was removed.
-6.  BlueBank is fictional and exists only for educational and portfolio
-    purposes.
+## 4. Current API Scope
 
-## Next Steps
+The following endpoints are part of the known backend implementation:
 
-1.  Create formal Test Cases.
-2.  Review Test Cases.
-3.  Execute Test Cases.
-4.  Create realistic Bug Reports.
-5.  Retest fixed defects.
-6.  Build Regression Set.
-7.  Complete traceability.
-8.  Start API Testing with Postman.
-9.  Add SQL testing.
-10. Add Playwright automation.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Health check |
+| POST | `/api/v1/auth/login` | User authentication |
+| GET | `/api/v1/accounts` | List accessible bank accounts |
+| GET | `/api/v1/accounts/{account_number}` | Retrieve account details |
+| POST | `/api/v1/transfers` | Submit a money transfer |
+| GET | `/api/v1/transactions` | Retrieve transaction history |
+
+Endpoint behavior, response formats, status codes, and authorization rules must be confirmed against the current implementation before being documented as definitive.
+
+Do not document an endpoint

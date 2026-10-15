@@ -1,29 +1,27 @@
 ### 2. Credentials
 
-```text
-User: USR-001
-Email: john.doe@bluebank.test
-Password: BlueBank@123
-Authentication Status: Valid
+#### 2.1 Valid Credentials
 
-User: USR-002
-Email: jane.smith@bluebank.test
-Password: BlueBank@123
-Authentication Status: Valid
-```
+The following credentials are intended for testing successful authentication. Verify that both users exist in the test database and that their passwords are valid before executing the tests.
 
-###For Negative Testing: ###
+| User ID | Email | Password | Expected Result |
+|---------|-------|----------|-----------------|
+| USR-001 | `john.doe@bluebank.test` | `BlueBank@123` | Authentication successful |
+| USR-002 | `jane.smith@bluebank.test` | `BlueBank@123` | Authentication successful |
 
-```text
-Unregistered Email:
-unknown@bluebank.test
+#### 2.2 Negative Testing Data
 
-Wrong Password:
-Wrong@123
+The following data is intended for testing unsuccessful authentication and input validation.
 
-Empty Email:
-<empty>
+| Test Scenario | Email | Password | Expected Result |
+|---------------|-------|----------|-----------------|
+| Unregistered email | `unknown@bluebank.test` | `BlueBank@123` | Authentication rejected |
+| Incorrect password | `john.doe@bluebank.test` | `Wrong@123` | Authentication rejected |
+| Empty email | `""` | `BlueBank@123` | Request rejected |
+| Empty password | `john.doe@bluebank.test` | `""` | Request rejected |
 
-Empty Password:
-<empty>
-```
+**Notes:**
+- Use these credentials only in the designated test environment.
+- Confirm that the valid users and passwords exist in the test database before execution.
+- An empty string (`""`) is different from an omitted field. Test these cases separately if both behaviors need to be verified.
+- Authentication failures should not disclose whether an email address is registered.
